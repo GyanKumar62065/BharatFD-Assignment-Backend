@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FAQ Creation</title>
+        <script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+        <h2>Create FAQ</h2>
+        <form id="faqForm">
+            <label for="question">Question:</label>
+            <input type="text" id="question" name="question" required><br><br>
+
+            <label for="answer">Answer:</label>
+            <textarea id="answer" name="answer"></textarea><br><br>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <script>
+            let editorInstance; // Store CKEditor instance globally
+            ClassicEditor.create(document.querySelector("#answer"), {
+                height: "400px",
+                editorPlaceholder: "Write your answer here...",
+            }).then(editor => {
+                editorInstance = editor; // Assign CKEditor instance to global variable
+            }).catch(error => console.error(error));
+
+            document.getElementById("faqForm").addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const question = document.getElementById("question").value;
+                const answer = document.getElementById("answer").value;
+
+                const response = await fetch("/api/faqs", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question, answer }),
+                });
+
+                // const data = await response.json();
+
+                if (response.ok) {
+                    if (confirm("FAQ is created successfully. Click OK to continue.")) {
+                        document.getElementById("question").value = "";
+                        editorInstance.setData("");
+                    }
+                } else {
+                    alert("Error in FAQ creation.");
+                }
+            });
+        </script>
+    </body>
+
+</html>
